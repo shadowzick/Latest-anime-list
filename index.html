@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title></title>
+    <script src="js/angular.min.js"></script>
+    <style>
+    img.anime-thumbnail {
+        max-width: 197px;
+        max-height: 191px;
+    }
+</style>
+</head>
+
+<body ng-controller="AppController">
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="jumbotron text-center">
+            <h1>Newly released animes!</h1>    
+        </div>
+
+        <div class="text-center">
+            <input type="text" class="form-control" ng-model="search" autofocus>
+            <button class="btn btn-info" ng-click="showAll()">Show all</button>
+            <div ng-repeat="anime in animes | limitTo:limit |filter:search">
+                <h2>{{anime.video_thumbnail.alt}}</h2>
+                <a ng-href="{{anime.video_link.href}}">
+                    <img class="anime-thumbnail" ng-src="{{anime.video_thumbnail.src}}" alt="{{anime.video_thumbnail.alt}}" class="img-response">
+                </a>
+                <p>{{anime.released}}</p>
+            </div>
+                <h3><a href='' ng-click="loadMore()">{{more}}</a></h3>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+<script>
+    var app = angular.module('app', ['newlyReleasedAnimeService']);
+
+    app.controller('AppController', function($scope, $window, Anime) {
+        Anime.get().then(function(res) {
+            $scope.more = 'More';
+            $scope.limit = 5;
+            $scope.animes = res.data.results.animes;
+            console.log($scope.animes);
+
+            $scope.loadMore = function() {
+                $scope.limit = $scope.limit + 5;
+                if ($scope.limit > $scope.animes.length) {
+                    $scope.more = "";
+                }
+            }
+
+            $scope.showAll = function() {
+                $scope.limit = $scope.animes.length;
+            }
+
+        });
+    });
+
+    angular.module('newlyReleasedAnimeService', [])
+        .factory('Anime', function($http) {
+        return {
+            get: function() {
+                return $http.get('https://www.kimonolabs.com/api/9z8bldda?apikey=aza2Fjw6Tdu85hDTZ5LJTwJbKqjyYPeo');
+            }
+        }
+    });
+
+</script>
+</html>
